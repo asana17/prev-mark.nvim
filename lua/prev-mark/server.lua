@@ -8,6 +8,25 @@ local Server = {
   port = nil,
   dir = nil,
 }
+local node_dir = utils.get_plugin_dir().."node/"
+
+---install server dependencies
+---return true if success, nil otherwise
+---@return boolean|nil
+local function install_node_modules()
+  if utils.exists(node_dir.."node_modules") then
+    return true
+  end
+  utils.warn("Installing node modules...")
+  vim.fn.system("npm install --prefix "..node_dir)
+  vim.cmd("redraw!")
+  if not utils.exists(node_dir.."node_modules") then
+    utils.error("Failed to install node_modules: " .. err)
+    return nil
+  end
+  utils.warn("Success!")
+  return true
+end
 
 ---Create a new server object
 ---@return Server|nil
@@ -15,6 +34,10 @@ function Server.new()
   local res
   local obj = {handle = nil, pid = nil, port = config.options.server.port, dir = config.options.preview.directory}
   res = utils.create_dir(obj.dir, true)
+  if not res then
+    return nil
+  end
+  res = install_node_modules()
   if not res then
     return nil
   end
@@ -35,11 +58,10 @@ end
 ---automatically close server when closing vim
 ---@return boolean|nil
 function Server:start_node_server()
-  local plugin_dir = utils.get_plugin_dir()
   -- send sigterm when closing vim
   vim.cmd("au VimLeavePre * lua require('prev-mark.server').send_sigterm_by_port(" .. self.port .. ")")
   self.handle, self.pid = uv.spawn("node", {
-    args = { plugin_dir.."node/server.js", self.port, self.dir },
+    args = { node_dir.."server.js", self.port, self.dir },
     stdio = {nil, nil, nil},
   }, (function(_, _)
     if not self.handle then
