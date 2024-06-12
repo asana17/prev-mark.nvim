@@ -1,8 +1,12 @@
 local config = require("prev-mark.config")
 local utils = require("prev-mark.utils")
 local Server = require("prev-mark.server")
+local File = require("prev-mark.file")
 
 local test = {}
+local temp_dir
+local temp_path
+local temp_content = "# Hello, world!"
 
 function test.init()
   utils.debug("This will not be shown.")
@@ -21,12 +25,25 @@ function test.test_utils()
   -- if directory already exists, it will not create it again.
   -- also, it will not clear the directory when exiting nvim.
   utils.create_dir(script_dir, true)
-  local temp_dir = script_dir .. "temp"
+  temp_dir = script_dir .. "temp"
   utils.debug(temp_dir)
   utils.create_dir(temp_dir, true)
   assert(utils.exists(temp_dir) == true)
-  assert(utils.write_file(temp_dir.."/test.txt", "Hello, world!", true) == true)
-  assert(utils.exists(temp_dir.."/test.txt") == true)
+  temp_path = temp_dir.."/test.md"
+  assert(utils.write_file(temp_path, temp_content, true) == true)
+  assert(utils.exists(temp_path) == true)
+end
+
+function test.test_file()
+  utils.debug("test file")
+  local file = File.new(temp_path)
+  utils.debug(file:get_path())
+  assert(file:exists() == true)
+  assert(file:is_markdown() == true)
+  assert(file:get_dir_name() == temp_dir.."/")
+  assert(file:get_name() == "test.md")
+  assert(file:get_identifier() == "test")
+  assert(file:get_content() == temp_content)
 end
 
 function test.test_server()
@@ -65,6 +82,7 @@ end
 function test.run()
   test.init()
   test.test_utils()
+  test.test_file()
   test.test_server()
   test.finish()
 end
