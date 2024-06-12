@@ -2,6 +2,7 @@ local config = require("prev-mark.config")
 local utils = require("prev-mark.utils")
 local Server = require("prev-mark.server")
 local File = require("prev-mark.file")
+local PrevFile = require("prev-mark.prev_file")
 
 local test = {}
 local temp_dir
@@ -46,6 +47,31 @@ function test.test_file()
   assert(file:get_content() == temp_content)
 end
 
+function test.test_prev_file()
+  utils.debug("test prev file")
+  assert(utils.exists(config.options.preview.css) == true)
+  local filename = "simple_test.md"
+  local simple_markdown = [[
+  # Hello, world!
+
+  - list1
+
+  ```bash
+  echo "Hello, world!"
+  ```
+  ]]
+  local filepath = temp_dir.."/"..filename
+  utils.write_file(filepath, simple_markdown, true)
+  local prev_file = PrevFile.new(filepath)
+  assert(prev_file ~= nil)
+  utils.debug(prev_file:get_path())
+  assert(prev_file:get_origin() == filepath)
+  assert(utils.exists(config.options.preview.directory) == true)
+  assert(prev_file:exists() == false)
+  assert(prev_file:write() == true)
+  assert(prev_file:exists() == true)
+end
+
 function test.test_server()
   utils.debug("test_server")
 
@@ -83,6 +109,7 @@ function test.run()
   test.init()
   test.test_utils()
   test.test_file()
+  test.test_prev_file()
   test.test_server()
   test.finish()
 end

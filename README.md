@@ -33,6 +33,7 @@ Open the current buffer Markdown in a Web browser.
       },
       preview = {
         directory = "<plugin_dir>/.preview", -- directory to place preview temporaly files
+        css = "<plugin_dir>/node/config/preview.css", -- CSS attached to the preview
       },
     }
   )
