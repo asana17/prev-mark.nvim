@@ -14,6 +14,8 @@ local defaults = {
   preview = {
     ---@type string
     directory = plugin_dir.."/.preview",
+    ---@type string
+    css = plugin_dir.."/node/config/preview.css",
   },
 }
 
