@@ -1,10 +1,20 @@
 --luacheck: globals vim
 local M = {}
 
+local plugin_dir = debug.getinfo(1, "S").source:sub(2):match("(.*)/lua/.*$")
+
 ---@class PrevOptions
 local defaults = {
   ---@type boolean
   verbose = false,
+  server = {
+    ---@type integer
+    port = 8000,
+  },
+  preview = {
+    ---@type string
+    directory = plugin_dir.."/.preview",
+  },
 }
 
 ---@type PrevOptions
