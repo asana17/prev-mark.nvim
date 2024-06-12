@@ -103,4 +103,43 @@ function M.get_plugin_dir()
   return debug.getinfo(1, "S").source:sub(2):match("(.*/)lua/.*$")
 end
 
+---return true if success, nil otherwise
+---@param path string
+---@param content string
+---@param clean boolean remove path when exiting vim or not
+---@return boolean|nil
+function M.write_file(path, content, clean)
+  local res = nil
+  local file = io.open(path, "w")
+  if not file then
+    M.error("Failed to open file: " .. path)
+    return res
+  end
+  file:write(content)
+  file:close()
+  if clean then
+    vim.cmd('au VimLeavePre * lua require("prev-mark.utils").delete_files("' .. path .. '")')
+  end
+  res = true
+  return res
+end
+
+---@param url string
+---@param os_name string
+function M.open_browser(url, os_name)
+  local browse_cmd
+  if os_name == "Darwin" then
+    browse_cmd = "open " .. url
+  elseif os_name == "Linux" then
+    browse_cmd = "xdg-open " .. url
+  elseif os_name == "Windows" then
+    browse_cmd = "start " .. url
+  else
+    M.error("Unsupported OS" .. os_name)
+    return
+  end
+  vim.cmd("silent ! " .. browse_cmd)
+  vim.cmd("redraw!")
+end
+
 return M

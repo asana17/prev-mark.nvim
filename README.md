@@ -27,7 +27,13 @@ Open the current buffer Markdown in a Web browser.
   ```lua
   require("prev-mark").setup(
     {
-      verbose = false
+      verbose = false,
+      server = {
+        port = 8000,
+      },
+      preview = {
+        directory = "<plugin_dir>/.preview", -- directory to place preview temporaly files
+      },
     }
   )
   ```
