@@ -1,6 +1,24 @@
 # lua-preview.nvim
 
-Open current buffer Markdown in Web browser.
+Open the current buffer Markdown in a Web browser.
+
+## Install
+
+- `lazy.nvim`
+
+  ```lua
+  local plugins = {
+    {"asana17/prev-mark.nvim"},
+  }
+  ```
+
+  Or you can use the local one.
+
+  ```lua
+  local plugins = {
+    {"prev-mark", dir = "~/prev-mark.nvim"},
+  }
+  ```
 
 ## Before commit
 
