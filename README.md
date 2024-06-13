@@ -20,6 +20,18 @@ Open the current buffer Markdown in a Web browser.
   }
   ```
 
+- Configuration Setup
+
+  Following setup is using default values.
+
+  ```lua
+  require("prev-mark").setup(
+    {
+      verbose = false
+    }
+  )
+  ```
+
 ## Before commit
 
 Use `pre-commit`. Follow the [official Quick start][1].
