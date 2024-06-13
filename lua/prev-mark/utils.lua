@@ -127,18 +127,20 @@ end
 ---@param url string
 ---@param os_name string
 function M.open_browser(url, os_name)
-  local browse_cmd
-  if os_name == "Darwin" then
-    browse_cmd = "open " .. url
-  elseif os_name == "Linux" then
-    browse_cmd = "xdg-open " .. url
-  elseif os_name == "Windows" then
-    browse_cmd = "start " .. url
-  else
-    M.error("Unsupported OS" .. os_name)
-    return
+  local browse_cmd = config.options.preview.browse_command
+  if browse_cmd  == "" then
+    if os_name == "Darwin" then
+      browse_cmd = "open"
+    elseif os_name == "Linux" then
+      browse_cmd = "xdg-open"
+    elseif os_name == "Windows" then
+      browse_cmd = "start"
+    else
+      M.error("Unsupported OS" .. os_name)
+      return
+    end
   end
-  vim.cmd("silent ! " .. browse_cmd)
+  vim.cmd("silent ! " .. browse_cmd.. " " .. url)
   vim.cmd("redraw!")
 end
 
