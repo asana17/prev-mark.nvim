@@ -1,6 +1,6 @@
 # lua-preview.nvim
 
-Open the current buffer Markdown in a Web browser.
+Open the current buffer Markdown in a Web browser with `:PrevMark`.
 
 ## Install
 
