@@ -30,6 +30,7 @@ Open the current buffer Markdown in a Web browser with `:PrevMark`.
       verbose = false,
       server = {
         port = 8000,
+        wait_limit = 1000, -- limit time in ms to wait for server to start
       },
       preview = {
         directory = "<plugin_dir>/.preview", -- directory to place preview temporaly files

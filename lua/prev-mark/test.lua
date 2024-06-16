@@ -1,3 +1,4 @@
+--luacheck: globals vim
 local config = require("prev-mark.config")
 local utils = require("prev-mark.utils")
 local Server = require("prev-mark.server")
@@ -74,8 +75,9 @@ end
 
 function test.test_server()
   utils.debug("test_server")
+  local pid = vim.fn.getpid()
 
-  local filename = "simple_test.html"
+  local filename = "test"..pid..".html"
   local simple_html = [[
   <html>
   <head>
@@ -90,12 +92,19 @@ function test.test_server()
   assert(server ~= nil)
   assert(server:get_port() == config.options.server.port)
   assert(server:get_dir() == config.options.preview.directory)
-  assert(utils.write_file(server:get_dir().."/"..filename, simple_html, true) == true)
-  assert(server:status() == "stopped")
-  assert(server:start_node_server() == true)
-  utils.open_browser("http://localhost:8000/"..filename, utils.detect_os())
   server:debug()
-  assert(server:status() == "running")
+  if server:connect() == nil then
+    utils.debug("Server is not running. Starting server...")
+    utils.debug(""..config.options.server.wait_limit.."")
+    assert(server:start_node_server() == true)
+    utils.debug("Server started...")
+    server:debug()
+    assert(server:connect() == true)
+  end
+  utils.debug("Connected to server.")
+  server:debug()
+  assert(utils.write_file(server:get_dir().."/"..filename, simple_html, true) == true)
+  utils.open_browser("http://localhost:8000/preview/"..filename, utils.detect_os())
   -- this server automatically stops when nvim closes.
   -- if you want to check, reload browser tab.
 end

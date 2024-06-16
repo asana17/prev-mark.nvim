@@ -10,6 +10,7 @@ local defaults = {
   server = {
     ---@type integer
     port = 8000,
+    wait_limit = 1000,
   },
   preview = {
     ---@type string

@@ -11,9 +11,33 @@ if (!port || !dir) {
   process.exit(1);
 }
 
-app.use(express.static(dir));
+var nvimProcs = new Set();
 
-app.get("/:filename", (req, res) => {
+function exitHandler() {
+  if (nvimProcs.size == 0) {
+    server.close();
+    process.exit(0);
+  }
+}
+
+process.on("SIGINT", exitHandler);
+process.on("SIGTERM", monitorProcs);
+
+function monitorProcs() {
+  nvimProcs.forEach((pid) => {
+    try {
+      process.kill(pid, 0);
+    } catch (_) {
+      nvimProcs.delete(pid);
+    }
+  });
+  exitHandler();
+}
+
+app.use(express.static(dir));
+app.use(express.json());
+
+app.get("/preview/:filename", (req, res) => {
   const filename = req.params.filename;
   const contentFilePath = `${dir}/${filename}`;
   fs.readFile(contentFilePath, "utf8", (err, data) => {
@@ -22,10 +46,32 @@ app.get("/:filename", (req, res) => {
       return;
     }
     res.set("Content-Type", "text/html");
-    res.send(data);
+    res.status(200).send(data);
   });
 });
 
-app.listen(port, () => {
+app.post("/status", (_, res) => {
+  console.log("nvimProcs: ", nvimProcs);
+  res.status(200).send({ nvimProcs: Array.from(nvimProcs) });
+});
+
+app.post("/connect", (req, res) => {
+  nvimProcs.add(req.body.pid);
+  res.status(200).send("OK");
+});
+
+app.post("/disconnect", (req, res) => {
+  nvimProcs.delete(req.body.pid);
+  res.status(200).send("OK");
+
+  if (nvimProcs.size == 0) {
+    setTimeout(() => {
+      exitHandler();
+    }, 1000);
+  }
+});
+
+var server = app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
+  setInterval(monitorProcs, 1000 * 60 * 5);
 });
