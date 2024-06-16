@@ -32,8 +32,12 @@ function M.preview()
     return
   end
   local res
-  if M.server:status() == "stopped" then
+  if not M.server:connect() then
     res = M.server:start_node_server()
+    if not res then
+      return
+    end
+    res = M.server:connect()
     if not res then
       return
     end
