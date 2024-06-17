@@ -47,7 +47,37 @@ function M.preview()
   if not res then
     return
   end
-  utils.open_browser("http://localhost:" .. M.server:get_port().."/"..prev_file:get_name(), utils.detect_os())
+  local port = M.server:get_port()
+  local buf_name = vim.api.nvim_buf_get_name(0)
+  vim.cmd("au BufWritePost "..buf_name.." lua require('prev-mark.view').reload('"..buf_name.."', "..buf_num..")")
+  vim.cmd("au BufWinLeave "..buf_name.." lua require('prev-mark.view').close('"..buf_name.."', "..buf_num..")")
+  utils.open_browser("http://localhost:" .. port.."/"..prev_file:get_name(), utils.detect_os())
+end
+
+---@param buf_name string
+---@param buf_num number
+function M.reload(buf_name, buf_num)
+  if buf_num ~= vim.fn.bufnr() then
+    return
+  end
+  local prev_file = Prevfile.new(buf_name)
+  if not prev_file then
+    return
+  end
+  local res = prev_file:write()
+  if not res then
+    return
+  end
+end
+
+---@param buf_name string
+---@param buf_num number
+function M.close(buf_name, buf_num)
+  if buf_num ~= vim.fn.bufnr() then
+    return
+  end
+  vim.cmd("au! BufWritePost "..buf_name)
+  vim.cmd("au! BufWinLeave "..buf_name)
 end
 
 return M
