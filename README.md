@@ -35,11 +35,49 @@ Open the current buffer Markdown in a Web browser with `:PrevMark`.
       preview = {
         directory = "<plugin_dir>/.preview", -- directory to place preview temporaly files
         css = "<plugin_dir>/node/config/preview.css", -- CSS attached to the preview
+        open_browser = true, -- open browser if true, otherwise do not open
         browse_command = "", -- command to start browser
+        show_url = false, -- show the preview file URL in the small window
       },
     }
   )
   ```
+
+## Preview on remote server
+
+Access preview URL from local browser. This requres following steps.
+
+Specify following configuration:
+
+```lua
+require("prev-mark").setup(
+  {
+    server = {
+      port = 8001,
+    },
+    preview = {
+      open_browser = false, -- do not open the browser
+      show_url = true, -- show the url in the small window
+    },
+  }
+)
+```
+
+Connect remote server with ssh port forwarding:
+
+```bash
+ssh -L 8001:localhost:8001 user@remote
+```
+
+To suppress the `open` error from `ssh`, use quiet option `-q`.
+
+```config
+Host remote
+  HostName remote
+  User user
+  RemoteForward 8001 localhost:8001
+  LogLevel QUIET
+```
 
 ## Before commit
 
