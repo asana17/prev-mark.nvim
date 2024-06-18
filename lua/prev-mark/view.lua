@@ -1,4 +1,5 @@
 --luacheck: globals vim
+local config = require("prev-mark.config")
 local utils = require("prev-mark.utils")
 local Prevfile = require("prev-mark.prev_file")
 local Server = require("prev-mark.server")
@@ -19,6 +20,10 @@ function M.init()
   if not M.server then
     M.server = Server.new()
   end
+end
+
+local function show_url(url)
+    vim.cmd("split | wincmd j | resize 2 | ene | set buftype=nofile | call setline(1, \"" .. url.."\")")
 end
 
 function M.preview()
@@ -51,7 +56,13 @@ function M.preview()
   local buf_name = vim.api.nvim_buf_get_name(0)
   vim.cmd("au BufWritePost "..buf_name.." lua require('prev-mark.view').reload('"..buf_name.."', "..buf_num..")")
   vim.cmd("au BufWinLeave "..buf_name.." lua require('prev-mark.view').close('"..buf_name.."', "..buf_num..")")
-  utils.open_browser("http://localhost:" .. port.."/"..prev_file:get_name(), utils.detect_os())
+  local url = "http://localhost:" .. port.."/"..prev_file:get_name()
+  if config.options.preview.open_browser then
+    utils.open_browser(url, utils.detect_os())
+  end
+  if config.options.preview.show_url then
+    show_url(url)
+  end
 end
 
 ---@param buf_name string

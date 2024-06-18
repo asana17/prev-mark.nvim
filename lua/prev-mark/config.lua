@@ -17,8 +17,12 @@ local defaults = {
     directory = plugin_dir.."/.preview",
     ---@type string
     css = plugin_dir.."/node/config/preview.css",
+    ---@type boolean
+    open_browser = true,
     ---@type string
     browse_command = "",
+    ---@type boolean
+    show_url = false,
   },
 }
 
