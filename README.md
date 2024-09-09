@@ -83,6 +83,10 @@ Host remote
 
 Use `pre-commit`. Follow the [official Quick start][1].
 
+```
+pre-commit install -t pre-commit -t commit-msg
+```
+
 Use [Conventional Commits][2].
 
 [1]: https://pre-commit.com/index.html#quick-start
