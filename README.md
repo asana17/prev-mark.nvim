@@ -1,4 +1,4 @@
-# lua-preview.nvim
+# prev-mark.nvim
 
 Open the current buffer Markdown in a Web browser with `:PrevMark`.
 
