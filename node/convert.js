@@ -20,7 +20,7 @@ function generateHtml(markdownFilePath, cssFilePath, callback) {
   <meta charset="UTF-8">
   <style>
   ${cssData}
-  </style
+  </style>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${markdownFilePath}</title>
   <script type="text/javascript" src="https://livejs.com/live.js"></script>
