@@ -45,7 +45,7 @@ const katexBlockExtension = {
     }
   },
   renderer(token) {
-    return `<div class="math-display">$$${token.text}$$</div>`;
+    return `<div class="math-display">$$$${token.text}$$$</div>`;
   }
 };
 
@@ -82,39 +82,19 @@ function generateHtml(markdownFilePath, cssFilePath, callback) {
   }
 
   const cssData = fs.readFileSync(cssFilePath, "utf8");
+  const templatePath = path.join(__dirname, "config", "preview.html");
+  if (!fs.existsSync(templatePath)) {
+    console.error(`Template file ${templatePath} does not exist`);
+    process.exit(1);
+  }
+  const template = fs.readFileSync(templatePath, "utf8");
 
-  const fullHtmlContent = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <style>
-  ${cssData}
-  </style>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${markdownFilePath}</title>
-  <script type="text/javascript" src="https://livejs.com/live.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-  <script defer type="text/javascript">
-    document.addEventListener("DOMContentLoaded", function () {
-      mermaid.initialize({ startOnLoad: true });
-      setTimeout(function() {
-        renderMathInElement(document.body, {
-          delimiters: [
-            {left: "$$", right: "$$", display: true},
-            {left: "\\\\(", right: "\\\\)", display: false}
-          ]
-        });
-      }, 100);
-    });
-  </script>
-  </head>
-<body>
-  ${htmlContent}
-</body>
-</html>`;
+  const fullHtmlContent = template
+    .replace("{{css}}", cssData)
+    .replace("{{title}}", markdownFilePath)
+    .replace("{{content}}", htmlContent)
+    .replace("{{timeout}}", 100);
+
   callback(fullHtmlContent);
 }
 
