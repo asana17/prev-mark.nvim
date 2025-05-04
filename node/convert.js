@@ -5,6 +5,31 @@ const fs = require("fs");
 const { marked } = require("marked");
 const path = require("path");
 
+
+const mermaidExtension = {
+  name: "mermaid",
+  level: "block",
+  start(src) {
+    return src.match(/```mermaid/)?.index;
+  },
+  tokenizer(src) {
+    const match = /^```mermaid\s*([\s\S]*?)```/.exec(src);
+    if (match) {
+      return {
+        type: "mermaid",
+        raw: match[0],
+        text: match[1].trim(),
+        tokens: [], // no inline tokens
+      };
+    }
+  },
+  renderer(token) {
+    return `<div class="mermaid">${token.text}</div>`;
+  },
+};
+
+marked.use({ extensions: [mermaidExtension] });
+
 function generateHtml(markdownFilePath, cssFilePath, callback) {
   let htmlContent = "<p>empty markdown file...<p>";
   if (fs.existsSync(markdownFilePath)) {
@@ -24,9 +49,11 @@ function generateHtml(markdownFilePath, cssFilePath, callback) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${markdownFilePath}</title>
   <script type="text/javascript" src="https://livejs.com/live.js"></script>
-  <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({ startOnLoad: true });
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      mermaid.initialize({ startOnLoad: true });
+    });
   </script>
 </head>
 <body>
