@@ -64,12 +64,14 @@ h6:hover a.anchor {
 
 code,
 tt {
-  margin: 0 2px;
-  padding: 0 5px;
-  white-space: nowrap;
-  border: 1px solid #eaeaea;
-  background-color: #fafafa;
-  border-radius: 3px;
+  margin: 0;
+  padding: 0.2em 0.4em;
+  font-family: SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 85%;
+  white-space: break-spaces;
+  background-color: rgb(175 184 193 / 20%);
+  border-radius: 6px;
 }
 
 h1 tt,
@@ -400,36 +402,38 @@ span.frame span span {
   padding: 5px 0 0;
 }
 
-pre code {
-  margin: 0;
-  padding: 0;
-  white-space: pre;
-  border: none;
-  background: transparent;
-}
-
 pre {
-  background-color: #fafafa;
-  border: 1px solid #ccc;
-  font-size: 13px;
-  line-height: 19px;
+  font-family: SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 85%;
+  line-height: 1.45;
+  tab-size: 4;
   overflow: auto;
-  padding: 6px 10px;
-  border-radius: 3px;
+  padding: 16px;
+  background-color: #f6f8fa;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+
+  /* Keep ASCII figures (drawn with | - +) perfectly aligned:
+     no ligatures that would merge/shift characters. */
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
 }
 
 pre code,
 pre tt {
+  display: inline;
+  padding: 0;
+  margin: 0;
+  font-size: inherit;
+  white-space: pre;
+  word-break: normal;
   background-color: transparent;
   border: none;
 }
 
-.highlight pre {
-  background-color: #fafafa;
-  border: 1px solid #ccc;
-  font-size: 13px;
-  line-height: 19px;
-  overflow: auto;
-  padding: 6px 10px;
-  border-radius: 3px;
+/* Let the code block background show through the highlight.js theme */
+pre code.hljs {
+  padding: 0;
+  background: transparent;
 }
