@@ -28,6 +28,25 @@ To run:
 node convert.js <markdown path> <css path> <destination html path>
 ```
 
+## Tests
+
+Run the conversion test suite (built-in `node --test` runner, no extra deps):
+
+```bash
+npm test
+```
+
+## Preview in a browser
+
+Render a Markdown file and open it in the browser to visually check
+highlighting, math, mermaid and CSS. Defaults to `test/fixtures/showcase.md`,
+which exercises every supported feature.
+
+```bash
+npm run demo                 # render the showcase document
+node demo.js path/to/file.md # render any Markdown file
+```
+
 ## Before commit
 
 - Use `eslint` and `prettier` for Node.js codes.
