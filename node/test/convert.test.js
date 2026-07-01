@@ -110,6 +110,30 @@ test("mermaidExtension tokenizes fenced mermaid blocks", () => {
   assert.match(mermaidExtension.renderer(token), /class="mermaid"/);
 });
 
+// Heading id slugs (so in-page [x](#heading) links jump), via
+// marked-gfm-heading-id for GitHub-compatible slugs.
+
+test("generateHtml gives headings GitHub-style id slugs, de-duplicating", () => {
+  const dir = fs.mkdtempSync(path.join(require("os").tmpdir(), "prevmark-h-"));
+  const md = path.join(dir, "toc.md");
+  fs.writeFileSync(md, "# Café\n\n## Setup\n\n## Usage\n\n## Setup\n");
+  const html = render(md);
+  fs.rmSync(dir, { recursive: true, force: true });
+  assert.match(html, /<h1 id="café">/); // unicode preserved, like GitHub
+  assert.match(html, /<h2 id="setup">/);
+  assert.match(html, /<h2 id="usage">/);
+  assert.match(html, /<h2 id="setup-1">/); // duplicate title gets a suffix
+});
+
+test("heading slug dedup does not accumulate across conversions", () => {
+  const dir = fs.mkdtempSync(path.join(require("os").tmpdir(), "prevmark-h2-"));
+  const md = path.join(dir, "again.md");
+  fs.writeFileSync(md, "# Setup\n");
+  const html = render(md); // runs after the previous test's "setup"
+  fs.rmSync(dir, { recursive: true, force: true });
+  assert.match(html, /<h1 id="setup">/); // fresh, not "setup-2"
+});
+
 // Local link / image rewriting (so figures work locally and over SSH).
 
 test("isExternalHref recognises remote and in-page targets", () => {
