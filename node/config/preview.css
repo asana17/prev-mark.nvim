@@ -150,12 +150,11 @@ pre {
 }
 
 hr {
-  background: transparent url("../../images/modules/pulls/dirty-shade.png")
-    repeat-x 0 0;
-  border: 0 none;
-  color: #ccc;
-  height: 4px;
+  height: 1px;
+  margin: 24px 0;
   padding: 0;
+  background-color: #d0d7de;
+  border: 0;
 }
 
 body > h2:first-child {
