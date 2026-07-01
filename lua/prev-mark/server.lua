@@ -27,18 +27,38 @@ local function server_signature()
   return table.concat(parts, "-")
 end
 
----install server dependencies
+---true if node_modules is missing or out of date with package-lock.json, i.e.
+---dependencies changed (e.g. after a git pull that added one) and must be
+---(re)installed. npm records what it installed in node_modules/.package-lock.json,
+---so a newer project package-lock.json means node_modules is stale.
+---@return boolean
+local function node_modules_stale()
+  if not utils.exists(node_dir.."node_modules") then
+    return true
+  end
+  local lock = uv.fs_stat(node_dir.."package-lock.json")
+  local installed = uv.fs_stat(node_dir.."node_modules/.package-lock.json")
+  if not lock then
+    return false
+  end
+  if not installed then
+    return true
+  end
+  return lock.mtime.sec > installed.mtime.sec
+end
+
+---install server dependencies when missing or out of date
 ---return true if success, nil otherwise
 ---@return boolean|nil
 local function install_node_modules()
-  if utils.exists(node_dir.."node_modules") then
+  if not node_modules_stale() then
     return true
   end
   utils.warn("Installing node modules...")
   vim.fn.system("npm install --prefix "..node_dir)
   vim.cmd("redraw!")
-  if not utils.exists(node_dir.."node_modules") then
-    utils.error("Failed to install node_modules: " .. err)
+  if vim.v.shell_error ~= 0 or not utils.exists(node_dir.."node_modules") then
+    utils.error("Failed to install node_modules")
     return nil
   end
   utils.warn("Success!")
