@@ -10,6 +10,23 @@ local Server = {
 }
 local node_dir = utils.get_plugin_dir().."node/"
 
+-- Files whose contents define the running server's behaviour.
+local server_sources = { "server.js", "marked_extensions.js" }
+
+-- Signature identifying the version of the server sources on disk, built from
+-- their modification times. The plugin passes this when spawning the server and
+-- the server reports it back via /status; when the files are edited or updated
+-- (e.g. via git) the signature changes, so a server left running by an older
+-- version is detected and replaced automatically -- no manual version bump.
+local function server_signature()
+  local parts = {}
+  for _, name in ipairs(server_sources) do
+    local stat = uv.fs_stat(node_dir .. name)
+    parts[#parts + 1] = stat and tostring(stat.mtime.sec) or "0"
+  end
+  return table.concat(parts, "-")
+end
+
 ---install server dependencies
 ---return true if success, nil otherwise
 ---@return boolean|nil
@@ -109,7 +126,7 @@ function Server:start_node_server()
   vim.cmd("au VimLeavePre * lua require('prev-mark.server').send_sigterm_by_port(" .. self.port .. ")")
   local handle, pid
   handle, pid = uv.spawn("node", {
-    args = { node_dir.."server.js", self.port, self.dir },
+    args = { node_dir.."server.js", tostring(self.port), self.dir, server_signature() },
     stdio = {nil, nil, nil},
   }, (function(_, _)
     if not handle then
@@ -164,6 +181,18 @@ function Server.send_sigterm_by_port(port)
   end
 end
 
+---find server by port, then SIGKILL it. Used to replace a stale server that
+---will not exit gracefully because clients are still connected.
+---@param port integer
+function Server.force_kill_by_port(port)
+  local server_pids = get_server_pids(port)
+  if server_pids ~= "" then
+    for server_pid in server_pids:gmatch("%d+") do
+      Server.send_signal(server_pid, 9)
+    end
+  end
+end
+
 ---return server status if success, nil if failed
 ---@return string|nil
 function Server:status()
@@ -172,6 +201,35 @@ function Server:status()
     return resp.data
   end
   return nil
+end
+
+---signature reported by the server currently running on the port, or nil if no
+---server is running or it does not report one (an older, pre-versioning server)
+---@return string|nil
+function Server:running_signature()
+  local status = self:status()
+  if not status then
+    return nil
+  end
+  local ok, decoded = pcall(vim.fn.json_decode, status)
+  if not ok or type(decoded) ~= "table" then
+    return nil
+  end
+  return decoded.version
+end
+
+---if a server is already running on the port but was started from older
+---sources (or predates versioning), replace it so the current server is used
+function Server:ensure_current()
+  if self:status() == nil then
+    return
+  end
+  if self:running_signature() == server_signature() then
+    return
+  end
+  utils.warn("Restarting outdated preview server...")
+  Server.force_kill_by_port(self.port)
+  vim.wait(1000, function() return self:status() == nil end, 50)
 end
 
 ---print server info
