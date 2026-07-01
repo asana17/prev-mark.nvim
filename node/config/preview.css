@@ -44,7 +44,8 @@ h4,
 h5,
 h6 {
   margin: 20px 0 10px;
-  padding: 0;
+  padding: 2px 0 2px 14px;
+  border-left: 6px solid transparent; /* accent bar colour set per level */
   font-weight: bold;
   -webkit-font-smoothing: antialiased;
   cursor: text;
@@ -104,38 +105,43 @@ h6 code {
   font-size: inherit;
 }
 
+/* Top levels (H1-H3) each get their own distinct colour so the main headings
+   are easy to tell apart at a glance; deeper levels (H4-H6) fade through grey
+   since they are used less and should recede. Size steps down across all six. */
 h1 {
-  font-size: 28px;
-  border-bottom: 1px solid #ccc;
-  background-color: #f0f8ff;
-  color: black;
+  font-size: 32px;
+  border-left-color: #1a2233; /* near-black */
+  color: #1a2233;
 }
 
 h2 {
-  font-size: 24px;
-  border-bottom: 1px solid #ccc;
-  background-color: #e0ffff;
-  color: black;
+  font-size: 27px;
+  border-left-color: #1565c0; /* blue */
+  color: #145aa8;
 }
 
 h3 {
-  border-bottom: 4px solid #afeeee;
-  font-size: 18px;
+  font-size: 23px;
+  border-left-color: #4a338f; /* deep muted purple */
+  color: #402c7a;
 }
 
 h4 {
-  border-bottom: 4px solid #b0e0e6;
-  font-size: 16px;
+  font-size: 20px;
+  border-left-color: #7b8794; /* grey */
+  color: #55606b;
 }
 
 h5 {
-  border-bottom: 4px solid #87ceeb;
-  font-size: 16px;
+  font-size: 18px;
+  border-left-color: #a3acb6; /* lighter grey */
+  color: #6f7883;
 }
 
 h6 {
-  color: #777;
   font-size: 16px;
+  border-left-color: #c6cdd4; /* lightest grey */
+  color: #8a929b;
 }
 
 p,
