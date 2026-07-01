@@ -3,6 +3,7 @@
 
 const fs = require("fs");
 const { marked } = require("marked");
+const { gfmHeadingId, resetHeadings } = require("marked-gfm-heading-id");
 const path = require("path");
 
 const {
@@ -27,12 +28,17 @@ marked.use({
     }
   },
 });
+// Give headings GitHub-compatible id slugs so in-page links like
+// [x](#my-heading) resolve to the matching heading.
+marked.use(gfmHeadingId());
 
 function generateHtml(markdownFilePath, cssFilePath, callback) {
   let htmlContent = "<p>empty markdown file...<p>";
   if (fs.existsSync(markdownFilePath)) {
     // Resolve relative image/link paths against the markdown file's directory.
     currentBaseDir = path.dirname(path.resolve(markdownFilePath));
+    // Clear heading-slug dedup state so ids don't accumulate across files.
+    resetHeadings();
     const content = fs.readFileSync(markdownFilePath, "utf8");
     htmlContent = marked.parse(content);
   }

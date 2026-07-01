@@ -22,5 +22,8 @@
     "prettier": "^3.3.2",
     "stylelint": "^16.6.1",
     "stylelint-config-standard": "^36.0.0"
+  },
+  "dependencies": {
+    "marked-gfm-heading-id": "^4.1.4"
   }
 }
