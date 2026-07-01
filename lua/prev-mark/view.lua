@@ -36,6 +36,9 @@ function M.preview()
   if not M.server then
     return
   end
+  -- Replace a server left running by an older plugin version before reusing it.
+  M.server:ensure_current()
+
   local res
   if not M.server:connect() then
     res = M.server:start_node_server()

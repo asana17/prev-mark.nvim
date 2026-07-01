@@ -7,9 +7,12 @@ const app = express();
 
 const port = process.argv[2];
 const dir = process.argv[3];
+// Version this server speaks, supplied by the plugin. Reported via /status so
+// the plugin can detect and replace a server left running by an older version.
+const version = process.argv[4] || "0";
 
 if (!port || !dir) {
-  console.error("Usage: node server.js <port> <directory> <file>");
+  console.error("Usage: node server.js <port> <directory> [version]");
   process.exit(1);
 }
 
@@ -73,7 +76,7 @@ app.get("/preview/:filename", (req, res) => {
 
 app.post("/status", (_, res) => {
   console.log("nvimProcs: ", nvimProcs);
-  res.status(200).send({ nvimProcs: Array.from(nvimProcs) });
+  res.status(200).send({ nvimProcs: Array.from(nvimProcs), version });
 });
 
 app.post("/connect", (req, res) => {
