@@ -7,15 +7,20 @@ check the preview (`npm run demo`) or as a fixture for the automated tests
 ## Headings
 
 # H1
+
 ## H2
+
 ### H3
+
 #### H4
+
 ##### H5
+
 ###### H6
 
 ## Inline formatting
 
-Plain text with **bold**, *italic*, ~~strikethrough~~, and `inline code`.
+Plain text with **bold**, _italic_, ~~strikethrough~~, and `inline code`.
 A [link to the repo](https://github.com/asana17/prev-mark.nvim).
 
 ## Syntax-highlighted code blocks
@@ -118,11 +123,11 @@ graph TD;
 
 ## Table
 
-| Feature        | Library       | Rendered |
-| -------------- | ------------- | :------: |
-| Highlighting   | highlight.js  |    ✅    |
-| Math           | KaTeX         |    ✅    |
-| Diagrams       | Mermaid       |    ✅    |
+| Feature      | Library      | Rendered |
+| ------------ | ------------ | :------: |
+| Highlighting | highlight.js |    ✅    |
+| Math         | KaTeX        |    ✅    |
+| Diagrams     | Mermaid      |    ✅    |
 
 ## Blockquote and list
 
@@ -134,6 +139,16 @@ graph TD;
    - nested bullet
    - another one
 3. Third item
+
+## Local images and links
+
+A local image resolved relative to this file (served through the preview
+server so it works locally and over SSH):
+
+![local figure](./figure.png)
+
+A [relative link to another file](../README.md) and an
+[external link](https://example.com) which must be left untouched.
 
 ## Horizontal rule
 

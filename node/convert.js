@@ -5,15 +5,34 @@ const fs = require("fs");
 const { marked } = require("marked");
 const path = require("path");
 
-const { mermaidExtension, katexInlineExtension, katexBlockExtension } =
-  require('./marked_extensions');
+const {
+  mermaidExtension,
+  katexInlineExtension,
+  katexBlockExtension,
+  rewriteLocalPath,
+} = require("./marked_extensions");
+
+// Directory of the markdown file currently being converted. Used to resolve
+// relative image/link paths; set by generateHtml before each parse.
+let currentBaseDir = process.cwd();
 
 marked.use({
-  extensions: [mermaidExtension, katexInlineExtension, katexBlockExtension] });
+  extensions: [mermaidExtension, katexInlineExtension, katexBlockExtension],
+  // Rewrite local image/link targets to go through the preview server so they
+  // load both locally and over an SSH port-forward. Mutating token.href lets
+  // marked's default renderer keep doing all HTML escaping.
+  walkTokens(token) {
+    if ((token.type === "image" || token.type === "link") && token.href) {
+      token.href = rewriteLocalPath(token.href, currentBaseDir);
+    }
+  },
+});
 
 function generateHtml(markdownFilePath, cssFilePath, callback) {
   let htmlContent = "<p>empty markdown file...<p>";
   if (fs.existsSync(markdownFilePath)) {
+    // Resolve relative image/link paths against the markdown file's directory.
+    currentBaseDir = path.dirname(path.resolve(markdownFilePath));
     const content = fs.readFileSync(markdownFilePath, "utf8");
     htmlContent = marked.parse(content);
   }

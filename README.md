@@ -43,6 +43,17 @@ Open the current buffer Markdown in a Web browser with `:PrevMark`.
   )
   ```
 
+## Local images and links
+
+Relative image and link targets (e.g. `![fig](./images/diagram.png)` or
+`[notes](./notes.pdf)`) are resolved against the Markdown file's directory and
+served through the preview server. Because they are fetched over HTTP rather
+than `file://`, local figures and assets render both when previewing locally
+and when previewing over an SSH port-forward (see below).
+
+External URLs (`http(s)://`, `mailto:`, `data:`) are left untouched. Links to
+other local Markdown files open their raw source, not a rendered preview.
+
 ## Preview on remote server
 
 Access preview URL from local browser. This requres following steps.

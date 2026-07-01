@@ -1,6 +1,8 @@
 const express = require("express");
 const fs = require("fs");
 
+const { LOCAL_PREFIX } = require("./marked_extensions");
+
 const app = express();
 
 const port = process.argv[2];
@@ -36,6 +38,25 @@ function monitorProcs() {
 
 app.use(express.static(dir));
 app.use(express.json());
+
+// Serve local files (images, linked assets) that previews reference. The
+// markdown converter rewrites relative image/link paths to this route so they
+// load over HTTP, which works both locally and over an SSH port-forward.
+app.get(`${LOCAL_PREFIX}/*`, (req, res) => {
+  let filePath;
+  try {
+    // req.path keeps percent-encoding; strip the prefix and decode ourselves.
+    filePath = decodeURIComponent(req.path.slice(LOCAL_PREFIX.length));
+  } catch (_) {
+    res.status(400).end();
+    return;
+  }
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      res.status(err.statusCode || 404).end();
+    }
+  });
+});
 
 app.get("/preview/:filename", (req, res) => {
   const filename = req.params.filename;
