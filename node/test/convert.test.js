@@ -11,6 +11,8 @@ const {
   mermaidExtension,
   katexInlineExtension,
   katexBlockExtension,
+  isExternalHref,
+  rewriteLocalPath,
 } = require("../marked_extensions");
 
 const cssPath = path.join(__dirname, "..", "config", "preview.css");
@@ -106,4 +108,60 @@ test("mermaidExtension tokenizes fenced mermaid blocks", () => {
   assert.equal(token.type, "mermaid");
   assert.match(token.text, /graph TD/);
   assert.match(mermaidExtension.renderer(token), /class="mermaid"/);
+});
+
+// Local link / image rewriting (so figures work locally and over SSH).
+
+test("isExternalHref recognises remote and in-page targets", () => {
+  for (const href of [
+    "https://x.com/a.png",
+    "http://x.com",
+    "mailto:a@b.com",
+    "data:image/png;base64,AAAA",
+    "//cdn.example.com/x.js",
+    "#section",
+  ]) {
+    assert.ok(isExternalHref(href), `${href} should be external`);
+  }
+  for (const href of ["./img.png", "../a/b.png", "img.png", "/abs/x.png"]) {
+    assert.ok(!isExternalHref(href), `${href} should be local`);
+  }
+});
+
+test("rewriteLocalPath routes local paths through /__local__ with abs path", () => {
+  const base = "/home/user/docs";
+  assert.equal(
+    rewriteLocalPath("./images/d.png", base),
+    "/__local__/home/user/docs/images/d.png",
+  );
+  assert.equal(
+    rewriteLocalPath("../shared/a.png", base),
+    "/__local__/home/user/shared/a.png",
+  );
+  // Spaces in names are percent-encoded per segment; separators kept.
+  assert.equal(
+    rewriteLocalPath("my figure.png", base),
+    "/__local__/home/user/docs/my%20figure.png",
+  );
+});
+
+test("rewriteLocalPath leaves external hrefs untouched", () => {
+  assert.equal(
+    rewriteLocalPath("https://e.com/a.png", "/base"),
+    "https://e.com/a.png",
+  );
+});
+
+test("generateHtml rewrites local image/link paths, keeps external ones", () => {
+  const html = render(showcasePath);
+  const base = path.dirname(showcasePath);
+  // Local image src resolved against the markdown's directory.
+  assert.ok(
+    html.includes(`<img src="/__local__${base}/figure.png"`),
+    "expected local image rewritten to /__local__ route",
+  );
+  // Local link rewritten too.
+  assert.match(html, /href="\/__local__[^"]*README\.md"/);
+  // External link preserved.
+  assert.match(html, /href="https:\/\/example\.com"/);
 });
